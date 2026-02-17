@@ -1,0 +1,222 @@
+{
+  "name": "caline",
+  "displayName": "Caline - IRC Client",
+  "description": "A native IRC client integrated into VSCode",
+  "version": "0.1.0",
+  "publisher": "AxelOllivier",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Axel-Ollivier/caline"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "caline.connect",
+        "title": "Caline: Connect to IRC Server",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "caline.disconnect",
+        "title": "Caline: Disconnect from IRC Server",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "caline.joinChannel",
+        "title": "Caline: Join Channel",
+        "icon": "$(add)"
+      },
+      {
+        "command": "caline.leaveChannel",
+        "title": "Caline: Leave Channel",
+        "icon": "$(close)"
+      },
+      {
+        "command": "caline.sendMessage",
+        "title": "Caline: Send Message",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "caline.newPrivateMessage",
+        "title": "Caline: New Private Message",
+        "icon": "$(mail)"
+      },
+      {
+        "command": "caline.removeServer",
+        "title": "Caline: Remove Server",
+        "icon": "$(trash)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "caline.connect",
+          "when": "view == calineServers",
+          "group": "navigation"
+        },
+        {
+          "command": "caline.joinChannel",
+          "when": "view == calineChannels",
+          "group": "navigation"
+        },
+        {
+          "command": "caline.newPrivateMessage",
+          "when": "view == calinePeople",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "caline.connect",
+          "when": "view == calineServers && viewItem == disconnectedServer",
+          "group": "inline"
+        },
+        {
+          "command": "caline.disconnect",
+          "when": "view == calineServers && viewItem == connectedServer",
+          "group": "inline"
+        },
+        {
+          "command": "caline.removeServer",
+          "when": "view == calineServers && viewItem == connectedServer",
+          "group": "inline"
+        },
+        {
+          "command": "caline.removeServer",
+          "when": "view == calineServers && viewItem == disconnectedServer",
+          "group": "inline"
+        },
+        {
+          "command": "caline.leaveChannel",
+          "when": "view == calineChannels && viewItem == channel",
+          "group": "inline"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "caline",
+          "title": "Caline IRC",
+          "icon": "resources/irc.svg"
+        }
+      ]
+    },
+    "views": {
+      "caline": [
+        {
+          "id": "calineServers",
+          "name": "Servers"
+        },
+        {
+          "id": "calineChannels",
+          "name": "Channels"
+        },
+        {
+          "id": "calineMembers",
+          "name": "Members"
+        },
+        {
+          "id": "calinePeople",
+          "name": "People"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Caline IRC",
+      "properties": {
+        "caline.servers": {
+          "type": "array",
+          "default": [],
+          "description": "List of IRC servers to connect to",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Display name for this server"
+              },
+              "host": {
+                "type": "string",
+                "description": "IRC server hostname"
+              },
+              "port": {
+                "type": "number",
+                "default": 6667,
+                "description": "IRC server port"
+              },
+              "nick": {
+                "type": "string",
+                "description": "Nickname to use on this server"
+              },
+              "tls": {
+                "type": "boolean",
+                "default": false,
+                "description": "Use TLS for connection"
+              },
+              "password": {
+                "type": "string",
+                "description": "Server password (optional)"
+              },
+              "autoJoin": {
+                "type": "array",
+                "default": [],
+                "description": "Channels to auto-join on connect",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "host",
+              "nick"
+            ]
+          }
+        },
+        "caline.reconnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically reconnect on disconnection"
+        },
+        "caline.reconnectDelay": {
+          "type": "number",
+          "default": 5000,
+          "description": "Delay in milliseconds before reconnection attempt"
+        },
+        "caline.reconnectMaxRetries": {
+          "type": "number",
+          "default": 10,
+          "description": "Maximum number of reconnection attempts"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "package": "node esbuild.mjs --production",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "esbuild": "^0.27.3",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "irc-framework": "^4.13.1"
+  }
+}
