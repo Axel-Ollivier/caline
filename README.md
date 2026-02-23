@@ -2,7 +2,7 @@
 
 IRC client for VS Code.
 
-![Caline screenshot](resources/screenshot.png)
+![Caline logo](resources/caline-logo.png)
 
 ## Features
 
