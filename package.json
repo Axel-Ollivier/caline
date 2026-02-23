@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://github.com/Axel-Ollivier/caline"
   },
-  "icon": "caline.png",
+  "icon": "resources/caline-logo.png",
   "categories": [
     "Other"
   ],
@@ -106,7 +106,7 @@
         {
           "id": "caline",
           "title": "Caline IRC",
-          "icon": "resources/irc.svg"
+          "icon": "resources/caline-icon.svg"
         }
       ]
     },
