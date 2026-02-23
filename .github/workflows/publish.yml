@@ -1,0 +1,45 @@
+name: Publish Extension
+
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check version bump
+        id: version
+        run: |
+          OLD=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version")
+          NEW=$(node -p "require('./package.json').version")
+          HIGHER=$(printf '%s\n%s' "$OLD" "$NEW" | sort -V | tail -n1)
+          if [ "$NEW" = "$HIGHER" ] && [ "$NEW" != "$OLD" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: check-version
+    if: needs.check-version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run check-types && npm run lint
+
+      - run: npx @vscode/vsce publish --no-update-package-json
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
