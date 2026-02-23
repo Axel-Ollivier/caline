@@ -78,7 +78,3 @@ IRC client for VS Code.
 ## Requirements
 
 VS Code 1.85+
-
-## License
-
-See [LICENSE](LICENSE).
