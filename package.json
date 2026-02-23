@@ -2,7 +2,7 @@
   "name": "caline",
   "displayName": "Caline - IRC Client",
   "description": "A native IRC client integrated into VSCode",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "publisher": "AxelOllivier",
   "engines": {
     "vscode": "^1.85.0"
@@ -11,6 +11,7 @@
     "type": "git",
     "url": "https://github.com/Axel-Ollivier/caline"
   },
+  "icon": "caline.png",
   "categories": [
     "Other"
   ],
