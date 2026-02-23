@@ -2,7 +2,7 @@
 
 IRC client for VS Code.
 
-![Caline screenshot](resources/screenshot.png)
+![Caline logo](resources/caline-logo.png)
 
 ## Features
 
@@ -78,7 +78,3 @@ IRC client for VS Code.
 ## Requirements
 
 VS Code 1.85+
-
-## License
-
-See [LICENSE](LICENSE).
