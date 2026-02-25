@@ -35,10 +35,13 @@ export function activate(context: vscode.ExtensionContext): void {
       connectionManager.setActiveServer(server);
     }
 
-    if (text.startsWith('/')) {
-      handleSlashCommand(connectionManager, text);
-    } else if (channel) {
-      connectionManager.sendMessage(text);
+    const lines = text.split('\n').filter(line => line.trim().length > 0);
+    for (const line of lines) {
+      if (line.startsWith('/')) {
+        handleSlashCommand(connectionManager, line);
+      } else if (channel) {
+        connectionManager.sendMessage(line);
+      }
     }
   });
 
