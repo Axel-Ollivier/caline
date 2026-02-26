@@ -1,8 +1,8 @@
 {
   "name": "caline",
   "displayName": "Caline - IRC Client",
-  "description": "A native IRC client integrated into VSCode.",
-  "version": "0.2.4",
+  "description": "A native IRC client integrated into VSCode",
+  "version": "0.2.5",
   "publisher": "AxelOllivier",
   "engines": {
     "vscode": "^1.85.0"
@@ -53,6 +53,16 @@
         "command": "caline.removeServer",
         "title": "Caline: Remove Server",
         "icon": "$(trash)"
+      },
+      {
+        "command": "caline.addAutoJoin",
+        "title": "Caline: Add to Auto-Join",
+        "icon": "$(star-empty)"
+      },
+      {
+        "command": "caline.removeAutoJoin",
+        "title": "Caline: Remove from Auto-Join",
+        "icon": "$(star-full)"
       }
     ],
     "menus": {
@@ -69,7 +79,7 @@
         },
         {
           "command": "caline.newPrivateMessage",
-          "when": "view == calinePeople",
+          "when": "view == calineChannels",
           "group": "navigation"
         }
       ],
@@ -96,7 +106,17 @@
         },
         {
           "command": "caline.leaveChannel",
+          "when": "view == calineChannels && viewItem =~ /^channel/",
+          "group": "inline"
+        },
+        {
+          "command": "caline.addAutoJoin",
           "when": "view == calineChannels && viewItem == channel",
+          "group": "inline"
+        },
+        {
+          "command": "caline.removeAutoJoin",
+          "when": "view == calineChannels && viewItem == channelAutoJoin",
           "group": "inline"
         }
       ]
@@ -123,10 +143,6 @@
         {
           "id": "calineMembers",
           "name": "Members"
-        },
-        {
-          "id": "calinePeople",
-          "name": "People"
         }
       ]
     },

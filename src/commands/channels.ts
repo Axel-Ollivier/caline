@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ConnectionManager } from '../irc/manager';
+import { ServerConfig } from '../types';
 import { IrcTreeItem } from '../ui/trees/treeItem';
 
 export async function joinChannelCommand(cm: ConnectionManager): Promise<void> {
@@ -36,4 +37,41 @@ export async function leaveChannelCommand(cm: ConnectionManager, item?: IrcTreeI
   }
 
   connection.leaveChannel(cm.activeChannel);
+}
+
+export async function toggleAutoJoinCommand(item?: IrcTreeItem): Promise<void> {
+  if (!item || item.itemType !== 'channel' || !item.channelName) {
+    return;
+  }
+
+  const serverName = item.serverName;
+  const channelName = item.channelName;
+
+  const config = vscode.workspace.getConfiguration('caline');
+
+  const servers = config.get<ServerConfig[]>('servers', []);
+
+  const serverIndex = servers.findIndex(s => s.name === serverName);
+  if (serverIndex === -1) {
+    vscode.window.showWarningMessage(`Server "${serverName}" not found in configuration.`);
+    return;
+  }
+
+  const server = { ...servers[serverIndex] };
+  const autoJoin = [...(server.autoJoin || [])];
+
+  const idx = autoJoin.indexOf(channelName);
+  if (idx >= 0) {
+    autoJoin.splice(idx, 1);
+    vscode.window.showInformationMessage(`Removed ${channelName} from auto-join on ${serverName}.`);
+  } else {
+    autoJoin.push(channelName);
+    vscode.window.showInformationMessage(`Added ${channelName} to auto-join on ${serverName}.`);
+  }
+
+  server.autoJoin = autoJoin;
+  const updatedServers = [...servers];
+  updatedServers[serverIndex] = server;
+
+  await config.update('servers', updatedServers, vscode.ConfigurationTarget.Global);
 }
