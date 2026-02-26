@@ -60,6 +60,10 @@
       outline: none;
       font-family: inherit;
       font-size: inherit;
+      resize: none;
+      overflow-y: auto;
+      max-height: 150px;
+      line-height: 1.4;
     }
 
     #input:focus {
@@ -72,20 +76,27 @@
   <div id="header">{{HEADER}}</div>
   <div id="messages"></div>
   <div id="input-bar">
-    <input type="text" id="input" placeholder="Type a message..." />
+    <textarea id="input" placeholder="Type a message..." rows="1"></textarea>
   </div>
 
   <script nonce="{{NONCE}}">
     (function () {
       const vscode = acquireVsCodeApi();
       const messagesEl = document.getElementById('messages');
-      const inputEl = /** @type {HTMLInputElement} */ (document.getElementById('input'));
+      const inputEl = /** @type {HTMLTextAreaElement} */ (document.getElementById('input'));
 
       inputEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && inputEl.value.trim()) {
+        if (e.key === 'Enter' && !e.shiftKey && inputEl.value.trim()) {
+          e.preventDefault();
           vscode.postMessage({ type: 'sendMessage', text: inputEl.value });
           inputEl.value = '';
+          inputEl.style.height = 'auto';
         }
+      });
+
+      inputEl.addEventListener('input', () => {
+        inputEl.style.height = 'auto';
+        inputEl.style.height = inputEl.scrollHeight + 'px';
       });
 
       /** @type {Record<string, (msg: any) => void>} */
