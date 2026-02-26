@@ -41,11 +41,13 @@ jobs:
       - run: npm run check-types && npm run lint
 
       - name: Publish to VS Code Marketplace
+        continue-on-error: true
         run: npx @vscode/vsce publish --no-update-package-json
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to Open VSX
-        run: npx ovsx publish --no-update-package-json
+        continue-on-error: true
+        run: npx ovsx publish
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
