@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ConnectionManager } from '../irc/manager';
 import { ChatPanel } from '../ui/chat';
-import { joinChannelCommand, leaveChannelCommand } from './channels';
+import { joinChannelCommand, leaveChannelCommand, toggleAutoJoinCommand } from './channels';
 import { connectCommand } from './connect';
 import { newPrivateMessageCommand } from './privateMessage';
 import { disconnectCommand, removeServerCommand } from './serverManagement';
@@ -15,6 +15,8 @@ export function registerCommands(cm: ConnectionManager, chatPanel: ChatPanel): v
     vscode.commands.registerCommand('caline.removeServer', (item) => removeServerCommand(cm, item)),
     vscode.commands.registerCommand('caline.joinChannel', () => joinChannelCommand(cm)),
     vscode.commands.registerCommand('caline.leaveChannel', (item) => leaveChannelCommand(cm, item)),
+    vscode.commands.registerCommand('caline.addAutoJoin', (item) => toggleAutoJoinCommand(item)),
+    vscode.commands.registerCommand('caline.removeAutoJoin', (item) => toggleAutoJoinCommand(item)),
     vscode.commands.registerCommand('caline.sendMessage', () => chatPanel.focusInput()),
     vscode.commands.registerCommand('caline.newPrivateMessage', () => newPrivateMessageCommand(cm, chatPanel)),
     vscode.commands.registerCommand('caline.selectServer', (name: string) => {
