@@ -2,7 +2,7 @@
   "name": "caline",
   "displayName": "Caline - IRC Client",
   "description": "A native IRC client integrated into VSCode",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "publisher": "AxelOllivier",
   "engines": {
     "vscode": "^1.85.0"
