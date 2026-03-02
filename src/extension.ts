@@ -47,6 +47,16 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   });
 
+  connectionManager.onNotification(({ type, server, channel, nick, message }) => {
+    const label = type === 'dm' ? `DM from ${nick}` : `${nick} in ${channel}`;
+    vscode.window.showInformationMessage(`${label}: ${message}`, 'Open').then((choice) => {
+      if (choice === 'Open') {
+        connectionManager.setActiveChannel(server, channel);
+        chatPanel.show(server, channel);
+      }
+    });
+  });
+
   chatPanel.onTabFocused(({ server, channel }) => {
     if (channel) {
       connectionManager.setActiveChannel(server, channel);
