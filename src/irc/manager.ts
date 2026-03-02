@@ -162,6 +162,15 @@ export class ConnectionManager implements vscode.Disposable {
     return contacts ? [...contacts].sort() : [];
   }
 
+  removeDmContact(serverName: string, nick: string): void {
+    const contacts = this._dmContacts.get(serverName);
+    if (contacts?.has(nick)) {
+      contacts.delete(nick);
+      this.saveDmContacts();
+      this._onDidChange.fire();
+    }
+  }
+
 
   loadFromConfig(): void {
     const config = vscode.workspace.getConfiguration('caline');

@@ -2,7 +2,7 @@
   "name": "caline",
   "displayName": "Caline - IRC Client",
   "description": "A native IRC client integrated into VSCode",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "publisher": "AxelOllivier",
   "engines": {
     "vscode": "^1.85.0"
@@ -38,6 +38,11 @@
       {
         "command": "caline.leaveChannel",
         "title": "Caline: Leave Channel",
+        "icon": "$(close)"
+      },
+      {
+        "command": "caline.closeDm",
+        "title": "Caline: Close Conversation",
         "icon": "$(close)"
       },
       {
@@ -108,6 +113,11 @@
         {
           "command": "caline.leaveChannel",
           "when": "view == calineChannels && viewItem =~ /^channel/",
+          "group": "inline"
+        },
+        {
+          "command": "caline.closeDm",
+          "when": "view == calineChannels && viewItem == dmContact",
           "group": "inline"
         },
         {
