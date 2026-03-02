@@ -57,7 +57,8 @@ export class ChannelTreeProvider implements vscode.TreeDataProvider<IrcTreeItem>
                     vscode.TreeItemCollapsibleState.None,
                 );
                 item.contextValue = isAutoJoin ? 'channelAutoJoin' : 'channel';
-                item.description = serverName;
+                const channelUnread = this.connectionManager.getUnreadCount(serverName, channelState.name);
+                item.description = channelUnread > 0 ? `${serverName} (${channelUnread})` : serverName;
                 item.tooltip = `${channelState.topic || channelState.name}${isAutoJoin ? ' (auto-join)' : ''}`;
                 item.iconPath = active
                     ? new vscode.ThemeIcon('comment-discussion', new vscode.ThemeColor('focusBorder'))
@@ -83,7 +84,8 @@ export class ChannelTreeProvider implements vscode.TreeDataProvider<IrcTreeItem>
                     vscode.TreeItemCollapsibleState.None,
                 );
                 item.contextValue = 'dmContact';
-                item.description = serverName;
+                const dmUnread = this.connectionManager.getUnreadCount(serverName, nick);
+                item.description = dmUnread > 0 ? `${serverName} (${dmUnread})` : serverName;
                 item.iconPath = active
                     ? new vscode.ThemeIcon('mail', new vscode.ThemeColor('focusBorder'))
                     : new vscode.ThemeIcon('person');

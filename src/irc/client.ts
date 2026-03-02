@@ -23,8 +23,14 @@ export class IrcClient implements vscode.Disposable {
     private readonly _onMembersChanged = new vscode.EventEmitter<string>();
     readonly onMembersChanged = this._onMembersChanged.event;
 
-    private readonly _onDmReceived = new vscode.EventEmitter<string>();
+    private readonly _onDmReceived = new vscode.EventEmitter<{ nick: string; message: string }>();
     readonly onDmReceived = this._onDmReceived.event;
+
+    private readonly _onMentionReceived = new vscode.EventEmitter<{ channel: string; nick: string; message: string }>();
+    readonly onMentionReceived = this._onMentionReceived.event;
+
+    private readonly _onChannelMessage = new vscode.EventEmitter<{ channel: string; nick: string; message: string }>();
+    readonly onChannelMessage = this._onChannelMessage.event;
 
     constructor(
         public readonly config: ServerConfig,
@@ -59,6 +65,8 @@ export class IrcClient implements vscode.Disposable {
         this._onChannelsChanged.dispose();
         this._onMembersChanged.dispose();
         this._onDmReceived.dispose();
+        this._onMentionReceived.dispose();
+        this._onChannelMessage.dispose();
     }
 
     joinChannel(channel: string): void {
@@ -182,13 +190,27 @@ export class IrcClient implements vscode.Disposable {
 
         c.on('message', (e: { target: string; nick: string; message: string }) => {
             const { target, isDm } = this.resolveTarget(e);
-            if (isDm) { this._onDmReceived.fire(e.nick); }
+            if (isDm) {
+                this._onDmReceived.fire({ nick: e.nick, message: e.message });
+            } else {
+                this._onChannelMessage.fire({ channel: target, nick: e.nick, message: e.message });
+                if (e.message.toLowerCase().includes(this._currentNick.toLowerCase())) {
+                    this._onMentionReceived.fire({ channel: target, nick: e.nick, message: e.message });
+                }
+            }
             this.output.appendMessage(server, target, `<${e.nick}> ${e.message}`);
         });
 
         c.on('action', (e: { target: string; nick: string; message: string }) => {
             const { target, isDm } = this.resolveTarget(e);
-            if (isDm) { this._onDmReceived.fire(e.nick); }
+            if (isDm) {
+                this._onDmReceived.fire({ nick: e.nick, message: e.message });
+            } else {
+                this._onChannelMessage.fire({ channel: target, nick: e.nick, message: `* ${e.nick} ${e.message}` });
+                if (e.message.toLowerCase().includes(this._currentNick.toLowerCase())) {
+                    this._onMentionReceived.fire({ channel: target, nick: e.nick, message: `* ${e.nick} ${e.message}` });
+                }
+            }
             this.output.appendMessage(server, target, `* ${e.nick} ${e.message}`);
         });
 

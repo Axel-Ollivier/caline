@@ -10,9 +10,13 @@ export class ConnectionManager implements vscode.Disposable {
   private _activeChannel: string | undefined;
   private readonly _dmContacts = new Map<string, Set<string>>();
   private readonly _joinedChannels = new Map<string, string[]>();
+  private readonly _unread = new Map<string, number>();
 
   private readonly _onDidChange = new vscode.EventEmitter<void>();
   readonly onDidChange = this._onDidChange.event;
+
+  private readonly _onNotification = new vscode.EventEmitter<{ type: 'dm' | 'mention'; server: string; channel: string; nick: string; message: string }>();
+  readonly onNotification = this._onNotification.event;
 
   constructor(
     private readonly output: MessageOutput,
@@ -43,6 +47,7 @@ export class ConnectionManager implements vscode.Disposable {
     if (!channelName.startsWith('#')) {
       this.trackDm(serverName, channelName);
     }
+    this.clearUnread(serverName, channelName);
     if (this._activeServer === serverName && this._activeChannel === channelName) {
       return;
     }
@@ -87,7 +92,23 @@ export class ConnectionManager implements vscode.Disposable {
       this._onDidChange.fire();
     });
     client.onMembersChanged(() => this._onDidChange.fire());
-    client.onDmReceived((nick) => this.trackDm(config.name, nick));
+    client.onDmReceived(({ nick, message }) => {
+      this.trackDm(config.name, nick);
+      if (this._activeServer !== config.name || this._activeChannel !== nick) {
+        this.incrementUnread(config.name, nick);
+        this._onNotification.fire({ type: 'dm', server: config.name, channel: nick, nick, message });
+      }
+    });
+    client.onChannelMessage(({ channel }) => {
+      if (this._activeServer !== config.name || this._activeChannel !== channel) {
+        this.incrementUnread(config.name, channel);
+      }
+    });
+    client.onMentionReceived(({ channel, nick, message }) => {
+      if (this._activeServer !== config.name || this._activeChannel !== channel) {
+        this._onNotification.fire({ type: 'mention', server: config.name, channel, nick, message });
+      }
+    });
 
     this._connections.set(config.name, client);
     client.connect();
@@ -160,6 +181,24 @@ export class ConnectionManager implements vscode.Disposable {
   getDmContacts(serverName: string): string[] {
     const contacts = this._dmContacts.get(serverName);
     return contacts ? [...contacts].sort() : [];
+  }
+
+  getUnreadCount(serverName: string, channel: string): number {
+    return this._unread.get(`${serverName}::${channel}`) ?? 0;
+  }
+
+  private incrementUnread(serverName: string, channel: string): void {
+    const key = `${serverName}::${channel}`;
+    this._unread.set(key, (this._unread.get(key) ?? 0) + 1);
+    this._onDidChange.fire();
+  }
+
+  private clearUnread(serverName: string, channel: string): void {
+    const key = `${serverName}::${channel}`;
+    if (this._unread.has(key)) {
+      this._unread.delete(key);
+      this._onDidChange.fire();
+    }
   }
 
   removeDmContact(serverName: string, nick: string): void {
@@ -236,5 +275,6 @@ export class ConnectionManager implements vscode.Disposable {
     }
     this._connections.clear();
     this._onDidChange.dispose();
+    this._onNotification.dispose();
   }
 }
