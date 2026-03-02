@@ -39,6 +39,13 @@ export async function leaveChannelCommand(cm: ConnectionManager, item?: IrcTreeI
   connection.leaveChannel(cm.activeChannel);
 }
 
+export function closeDmCommand(cm: ConnectionManager, item?: IrcTreeItem): void {
+  if (!item || item.itemType !== 'member' || !item.channelName) {
+    return;
+  }
+  cm.removeDmContact(item.serverName, item.channelName);
+}
+
 export async function toggleAutoJoinCommand(item?: IrcTreeItem): Promise<void> {
   if (!item || item.itemType !== 'channel' || !item.channelName) {
     return;
