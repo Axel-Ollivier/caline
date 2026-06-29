@@ -102,12 +102,12 @@
       /** @type {Record<string, (msg: any) => void>} */
       const handlers = {
         addMessage(msg) {
-          appendMessage(msg.text, msg.cssClass);
+          appendMessage(msg.prompt, msg.text, msg.cssClass, false);
         },
         setMessages(msg) {
           messagesEl.innerHTML = '';
           for (const m of msg.messages) {
-            appendMessage(m.text, m.cssClass, false);
+            appendMessage(m.prompt, m.text, m.cssClass, false);
           }
           scrollToBottom();
         },
@@ -128,10 +128,24 @@
        * @param {string} [cssClass]
        * @param {boolean} [scroll]
        */
-      function appendMessage(text, cssClass, scroll = true) {
+      function appendMessage(prompt, text, cssClass, scroll = true) {
         const div = document.createElement('div');
         div.className = cssClass ? `msg ${cssClass}` : 'msg';
-        div.textContent = text;
+
+        const promptSpan = document.createElement('span');
+        promptSpan.innerText = prompt + ": ";
+        div.appendChild(promptSpan);
+
+        let displayText = text.replace(
+          /(?:http[s]?:\/\/.)(?:www\.)?[-a-zA-Z0-9@%._\+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm,
+          function(url) {
+            return '<a href="' + url + '">' + url + '</a>';
+          }
+        );
+        const textSpan = document.createElement('span');
+        textSpan.innerHTML = displayText;
+        div.appendChild(textSpan);
+
         messagesEl.appendChild(div);
         if (scroll) {
           scrollToBottom();

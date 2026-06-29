@@ -31,13 +31,24 @@ export class ChatPanel implements MessageOutput, vscode.Disposable {
         const key = tabKey(serverName, channel);
         const text = `${timestamp()} ${message}`;
         this.store.pushMessage(key, text);
-        this.postTo(key, { type: 'addMessage', text });
+
+        let prompt: string = "";
+        let textContent: string = "";
+        const line: string[] = text.split(" ");
+        if (line.length >= 3) {
+            prompt = line.slice(0, 3).join(" ");
+            textContent = line.slice(3).join(" ");
+        } else {
+            prompt = text;
+        }
+
+        this.postTo(key, { type: 'addMessage', prompt: prompt, text: textContent });
     }
 
     appendServerMessage(serverName: string, message: string): void {
         const text = `${timestamp()} ${message}`;
         this.store.pushSystem(serverName, text);
-        this.postTo(serverName, { type: 'addMessage', text, cssClass: 'system' });
+        this.postTo(serverName, { type: 'addMessage', prompt: "server message", text, cssClass: 'system' });
     }
 
     show(server?: string, channel?: string): void {
